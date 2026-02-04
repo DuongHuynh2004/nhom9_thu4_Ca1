@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Quản lý Sinh viên (AJAX - MockAPI)</title>
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -22,6 +23,7 @@ h2 {
     margin-top: 40px;
     color: #0056d2;
 }
+
 .team-box {
     background: #eaf4ff;
     border-left: 6px solid #0066ff;
@@ -37,6 +39,7 @@ h2 {
 .team-item:last-child {
     border-bottom: none;
 }
+
 input {
     padding: 6px;
     margin: 4px;
@@ -46,6 +49,7 @@ button {
     padding: 6px 10px;
     cursor: pointer;
 }
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -63,47 +67,61 @@ th {
     color: white;
 }
 
-.btn-edit { background: #ffc107; border: none; }
-.btn-delete { background: #dc3545; color: white; border: none; }
+.btn-edit {
+    background: #ffc107;
+    border: none;
+    padding: 5px 8px;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+}
 </style>
 </head>
 
 <body>
 <div class="container">
+
+<!-- DANH SÁCH THÀNH VIÊN -->
 <div class="team-box">
     <h2>Danh sách thành viên nhóm</h2>
 
     <div class="team-item">
-        <b>1. Họ tên:</b> Lê Kiều Phương <br>
+        <b>1. Họ tên:</b> Lê Kiều Phương<br>
         <b>MSSV:</b> DH52201276 | <b>Lớp:</b> D22_TH13
     </div>
 
     <div class="team-item">
-        <b>2. Họ tên:</b> Huỳnh Dương Huỳnh <br>
+        <b>2. Họ tên:</b> Huỳnh Dương Huỳnh<br>
         <b>MSSV:</b> DH52200818 | <b>Lớp:</b> D22_TH13
     </div>
 
     <div class="team-item">
-        <b>3. Họ tên:</b> Phạm Minh Quân <br>
+        <b>3. Họ tên:</b> Phạm Minh Quân<br>
         <b>MSSV:</b> DH52201295 | <b>Lớp:</b> D22_TH13
     </div>
 
     <div class="team-item">
-        <b>4. Họ tên:</b> Trần Bội Ngọc <br>
+        <b>4. Họ tên:</b> Trần Bội Ngọc<br>
         <b>MSSV:</b> DH52201111 | <b>Lớp:</b> D22_TH13
     </div>
 
     <div class="team-item">
-        <b>5. Họ tên:</b> Phan Thị Bích Chi <br>
+        <b>5. Họ tên:</b> Phan Thị Bích Chi<br>
         <b>MSSV:</b> DH52200407 | <b>Lớp:</b> D22_TH13
     </div>
 </div>
+
+<!-- QUẢN LÝ SINH VIÊN -->
 <h2>Quản lý Sinh viên (MockAPI)</h2>
 
 <input type="hidden" id="id">
 <input type="text" id="name" placeholder="Họ tên">
 <input type="text" id="mssv" placeholder="MSSV">
-<button onclick="addStudent()">Thêm</button>
+<button onclick="addStudent()">Thêm / Cập nhật</button>
 
 <table>
 <thead>
@@ -122,6 +140,7 @@ th {
 <script>
 const API_URL = "https://69829d539c3efeb892a2c899.mockapi.io/sinhvien";
 
+// LOAD DATA
 function loadData() {
     fetch(API_URL)
     .then(res => res.json())
@@ -131,11 +150,17 @@ function loadData() {
             html += `
             <tr>
                 <td>${sv.id}</td>
-                <td>${sv.name}</td>
+                <td>${sv.hoten}</td>
                 <td>${sv.mssv}</td>
                 <td>
-                    <button class="btn-edit" onclick="editStudent('${sv.id}','${sv.name}','${sv.mssv}')">Sửa</button>
-                    <button class="btn-delete" onclick="deleteStudent('${sv.id}')">Xóa</button>
+                    <button class="btn-edit"
+                        onclick="editStudent('${sv.id}','${sv.hoten}','${sv.mssv}')">
+                        Sửa
+                    </button>
+                    <button class="btn-delete"
+                        onclick="deleteStudent('${sv.id}')">
+                        Xóa
+                    </button>
                 </td>
             </tr>`;
         });
@@ -143,32 +168,40 @@ function loadData() {
     });
 }
 
+// ADD / UPDATE
 function addStudent() {
     const id = document.getElementById("id").value;
     const name = document.getElementById("name").value;
     const mssv = document.getElementById("mssv").value;
 
+    if (!name || !mssv) {
+        alert("Nhập đầy đủ họ tên và MSSV");
+        return;
+    }
+
     if (id) {
         fetch(API_URL + "/" + id, {
             method: "PUT",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({name, mssv})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ hoten: name, mssv })
         }).then(() => resetForm());
     } else {
         fetch(API_URL, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({name, mssv})
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ hoten: name, mssv })
         }).then(() => resetForm());
     }
 }
 
-function editStudent(id, name, mssv) {
+// EDIT
+function editStudent(id, hoten, mssv) {
     document.getElementById("id").value = id;
-    document.getElementById("name").value = name;
+    document.getElementById("name").value = hoten;
     document.getElementById("mssv").value = mssv;
 }
 
+// DELETE
 function deleteStudent(id) {
     if (confirm("Xóa sinh viên này?")) {
         fetch(API_URL + "/" + id, { method: "DELETE" })
@@ -176,6 +209,7 @@ function deleteStudent(id) {
     }
 }
 
+// RESET
 function resetForm() {
     document.getElementById("id").value = "";
     document.getElementById("name").value = "";
