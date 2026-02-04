@@ -1,63 +1,199 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Danh sách sinh viên</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
+<meta charset="UTF-8">
+<title>Quản lý Sinh viên (AJAX - MockAPI)</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    padding: 20px;
+}
 
-<h2>Danh sách sinh viên</h2>
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+h2 {
+    margin-top: 40px;
+    color: #0056d2;
+}
+
+/* ===== BẢNG THÀNH VIÊN ===== */
+.team-box {
+    background: #eaf4ff;
+    border-left: 6px solid #0066ff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.team-item {
+    padding: 10px 0;
+    border-bottom: 1px dashed #b6d4ff;
+}
+
+.team-item:last-child {
+    border-bottom: none;
+}
+
+/* ===== FORM ===== */
+input {
+    padding: 6px;
+    margin: 4px;
+}
+
+button {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+/* ===== TABLE ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background: #0066ff;
+    color: white;
+}
+
+.btn-edit { background: #ffc107; border: none; }
+.btn-delete { background: #dc3545; color: white; border: none; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- ===== DANH SÁCH THÀNH VIÊN ===== -->
+<div class="team-box">
+    <h2>Danh sách thành viên nhóm</h2>
+
+    <div class="team-item">
+        <b>1. Họ tên:</b> Lê Kiều Phương <br>
+        <b>MSSV:</b> DH52201276 | <b>Lớp:</b> D22_TH13
+    </div>
+
+    <div class="team-item">
+        <b>2. Họ tên:</b> Huỳnh Dương Huỳnh <br>
+        <b>MSSV:</b> DH52200818 | <b>Lớp:</b> D22_TH13
+    </div>
+
+    <div class="team-item">
+        <b>3. Họ tên:</b> Phạm Minh Quân <br>
+        <b>MSSV:</b> DH52201295 | <b>Lớp:</b> D22_TH13
+    </div>
+
+    <div class="team-item">
+        <b>4. Họ tên:</b> Trần Bội Ngọc <br>
+        <b>MSSV:</b> DH52201111 | <b>Lớp:</b> D22_TH13
+    </div>
+
+    <div class="team-item">
+        <b>5. Họ tên:</b> Phan Thị Bích Chi <br>
+        <b>MSSV:</b> DH52200407 | <b>Lớp:</b> D22_TH13
+    </div>
+</div>
+
+<!-- ===== CRUD SINH VIÊN ===== -->
+<h2>Quản lý Sinh viên (MockAPI)</h2>
+
+<input type="hidden" id="id">
+<input type="text" id="name" placeholder="Họ tên">
+<input type="text" id="mssv" placeholder="MSSV">
+<button onclick="addStudent()">Thêm</button>
 
 <table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>MSSV</th>
-            <th>Họ tên</th>
-            <th>Lớp</th>
-            <th>Điểm</th>
-        </tr>
-    </thead>
-    <tbody id="data">
-        
-    </tbody>
+<thead>
+<tr>
+    <th>ID</th>
+    <th>Họ tên</th>
+    <th>MSSV</th>
+    <th>Hành động</th>
+</tr>
+</thead>
+<tbody id="list"></tbody>
 </table>
 
-<script>
-    const API_URL = "https://69829d539c3efeb892a2c899.mockapi.io/sinhvien";
+</div>
 
+<script>
+const API_URL = "https://YOUR_MOCKAPI_URL/sinhvien";
+
+function loadData() {
     fetch(API_URL)
-        .then(response => response.json())
-        .then(data => {
-            let rows = "";
-            data.forEach(sv => {
-                rows += `
-                    <tr>
-                        <td>${sv.id}</td>
-                        <td>${sv.mssv}</td>
-                        <td>${sv.hoten}</td>
-                        <td>${sv.lop}</td>
-                        <td>${sv.diem}</td>
-                    </tr>
-                `;
-            });
-            document.getElementById("data").innerHTML = rows;
-        })
-        .catch(err => console.error(err));
+    .then(res => res.json())
+    .then(data => {
+        let html = "";
+        data.forEach(sv => {
+            html += `
+            <tr>
+                <td>${sv.id}</td>
+                <td>${sv.name}</td>
+                <td>${sv.mssv}</td>
+                <td>
+                    <button class="btn-edit" onclick="editStudent('${sv.id}','${sv.name}','${sv.mssv}')">Sửa</button>
+                    <button class="btn-delete" onclick="deleteStudent('${sv.id}')">Xóa</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById("list").innerHTML = html;
+    });
+}
+
+function addStudent() {
+    const id = document.getElementById("id").value;
+    const name = document.getElementById("name").value;
+    const mssv = document.getElementById("mssv").value;
+
+    if (id) {
+        fetch(API_URL + "/" + id, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name, mssv})
+        }).then(() => resetForm());
+    } else {
+        fetch(API_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({name, mssv})
+        }).then(() => resetForm());
+    }
+}
+
+function editStudent(id, name, mssv) {
+    document.getElementById("id").value = id;
+    document.getElementById("name").value = name;
+    document.getElementById("mssv").value = mssv;
+}
+
+function deleteStudent(id) {
+    if (confirm("Xóa sinh viên này?")) {
+        fetch(API_URL + "/" + id, { method: "DELETE" })
+        .then(() => loadData());
+    }
+}
+
+function resetForm() {
+    document.getElementById("id").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("mssv").value = "";
+    loadData();
+}
+
+loadData();
 </script>
 
 </body>
