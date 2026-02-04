@@ -115,20 +115,23 @@ th {
     </div>
 </div>
 
-<!-- QUẢN LÝ SINH VIÊN -->
 <h2>Quản lý Sinh viên (MockAPI)</h2>
 
 <input type="hidden" id="id">
-<input type="text" id="name" placeholder="Họ tên">
 <input type="text" id="mssv" placeholder="MSSV">
-<button onclick="addStudent()">Thêm / Cập nhật</button>
+<input type="text" id="hoten" placeholder="Họ tên">
+<input type="text" id="lop" placeholder="Lớp">
+<input type="number" id="diem" placeholder="Điểm">
+<button onclick="saveStudent()">Thêm / Cập nhật</button>
 
 <table>
 <thead>
 <tr>
     <th>ID</th>
-    <th>Họ tên</th>
     <th>MSSV</th>
+    <th>Họ tên</th>
+    <th>Lớp</th>
+    <th>Điểm</th>
     <th>Hành động</th>
 </tr>
 </thead>
@@ -150,11 +153,19 @@ function loadData() {
             html += `
             <tr>
                 <td>${sv.id}</td>
-                <td>${sv.hoten}</td>
                 <td>${sv.mssv}</td>
+                <td>${sv.hoten}</td>
+                <td>${sv.lop}</td>
+                <td>${sv.diem}</td>
                 <td>
                     <button class="btn-edit"
-                        onclick="editStudent('${sv.id}','${sv.hoten}','${sv.mssv}')">
+                        onclick="editStudent(
+                            '${sv.id}',
+                            '${sv.mssv}',
+                            '${sv.hoten}',
+                            '${sv.lop}',
+                            '${sv.diem}'
+                        )">
                         Sửa
                     </button>
                     <button class="btn-delete"
@@ -169,51 +180,59 @@ function loadData() {
 }
 
 // ADD / UPDATE
-function addStudent() {
+function saveStudent() {
     const id = document.getElementById("id").value;
-    const name = document.getElementById("name").value;
     const mssv = document.getElementById("mssv").value;
+    const hoten = document.getElementById("hoten").value;
+    const lop = document.getElementById("lop").value;
+    const diem = document.getElementById("diem").value;
 
-    if (!name || !mssv) {
-        alert("Nhập đầy đủ họ tên và MSSV");
+    if (!mssv || !hoten || !lop || diem === "") {
+        alert("Nhập đầy đủ thông tin!");
         return;
     }
+
+    const data = { mssv, hoten, lop, diem };
 
     if (id) {
         fetch(API_URL + "/" + id, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hoten: name, mssv })
-        }).then(() => resetForm());
+            body: JSON.stringify(data)
+        }).then(resetForm);
     } else {
         fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ hoten: name, mssv })
-        }).then(() => resetForm());
+            body: JSON.stringify(data)
+        }).then(resetForm);
     }
 }
 
 // EDIT
-function editStudent(id, hoten, mssv) {
+function editStudent(id, mssv, hoten, lop, diem) {
     document.getElementById("id").value = id;
-    document.getElementById("name").value = hoten;
     document.getElementById("mssv").value = mssv;
+    document.getElementById("hoten").value = hoten;
+    document.getElementById("lop").value = lop;
+    document.getElementById("diem").value = diem;
 }
 
 // DELETE
 function deleteStudent(id) {
     if (confirm("Xóa sinh viên này?")) {
         fetch(API_URL + "/" + id, { method: "DELETE" })
-        .then(() => loadData());
+        .then(loadData);
     }
 }
 
 // RESET
 function resetForm() {
     document.getElementById("id").value = "";
-    document.getElementById("name").value = "";
     document.getElementById("mssv").value = "";
+    document.getElementById("hoten").value = "";
+    document.getElementById("lop").value = "";
+    document.getElementById("diem").value = "";
     loadData();
 }
 
